@@ -4,7 +4,7 @@ import json
 
 async def test_bmi():
     async with aiohttp.ClientSession() as session:
-        # Test BMI calculation
+       
         bmi_data = {
             "height": 1.75,
             "weight": 70
@@ -18,7 +18,7 @@ async def test_bmi():
 
 async def test_bmr():
     async with aiohttp.ClientSession() as session:
-        # Test BMR calculation
+      
         bmr_data = {
             "height": 175,
             "weight": 70,
@@ -34,7 +34,7 @@ async def test_bmr():
 
 async def test_api_doc():
     async with aiohttp.ClientSession() as session:
-        # Test API documentation endpoint
+       
         async with session.get('http://localhost:5000/api') as response:
             assert response.status == 200
             data = await response.json()

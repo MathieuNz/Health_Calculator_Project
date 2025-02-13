@@ -1,4 +1,4 @@
-# URLs for the API endpoints
+
 BMI_URL=http://localhost:5000/bmi
 BMR_URL=http://localhost:5000/bmr
 API_URL=http://localhost:5000/api

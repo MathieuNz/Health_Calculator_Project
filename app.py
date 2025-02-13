@@ -1,16 +1,15 @@
 import sys
 import os
 from flask import Flask, request, jsonify, send_from_directory
-from flask_cors import CORS  # Pour gérer les requêtes CORS
+from flask_cors import CORS  
 
-# Ajoute le dossier actuel au PATH pour résoudre les problèmes d'import
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from health_utils import calculate_bmi, calculate_bmr
 
-# Initialisation de l'application Flask
+
 app = Flask(__name__, static_folder='static')
-CORS(app)  # Active CORS pour toutes les routes
+CORS(app)  
 
 @app.route("/")
 def serve_doc():
@@ -105,11 +104,11 @@ def bmi():
     """Calculate BMI based on height and weight"""
     data = request.get_json()
     try:
-        # Conversion explicite des valeurs en float
+       
         height = float(data["height"])
         weight = float(data["weight"])
         
-        # Vérification des valeurs négatives
+      
         if height <= 0 or weight <= 0:
             return jsonify({"error": "Height and weight must be positive values"}), 400
             
@@ -132,13 +131,13 @@ def bmr():
     """Calculate BMR based on height, weight, age, and gender"""
     data = request.get_json()
     try:
-        # Conversion explicite des valeurs
+        
         height = float(data["height"])
         weight = float(data["weight"])
         age = float(data["age"])
         gender = str(data["gender"]).lower()
         
-        # Validation des valeurs
+        
         if height <= 0 or weight <= 0 or age <= 0:
             return jsonify({"error": "Height, weight, and age must be positive values"}), 400
         if gender not in ["male", "female"]:
@@ -169,5 +168,5 @@ def get_bmi_interpretation(bmi):
         return "Obese"
 
 if __name__ == "__main__":
-    # En production, définissez debug=False
+    
     app.run(host="0.0.0.0", port=5000, debug=True)

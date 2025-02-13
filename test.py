@@ -2,10 +2,8 @@ import unittest
 import sys
 import os
 
-# Ajouter le répertoire courant au PATH pour éviter les erreurs d'import
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import des fonctions à tester depuis health_utils.py
 from health_utils import calculate_bmi, calculate_bmr
 
 class TestHealthUtils(unittest.TestCase):
