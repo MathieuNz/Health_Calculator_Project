@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function HealthCalculator() {
+            const [activeTab, setActiveTab] = React.useState('bmi');
+            const [loading, setLoading] = React.useState(false);
+            const [result, setResult] = React.useState(null);
+            const [error, setError] = React.useState(null);
+
+            const [bmiData, setBmiData] = React.useState({
+                height: '',
+                weight: ''
+            });
+
+            const [bmrData, setBmrData] = React.useState({
+                height: '',
+                weight: '',
+                age: '',
+                gender: 'male'
+            });
+
+            const calculateBMI = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError(null);
+                try {
+                    const response = await fetch('/bmi', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            height: parseFloat(bmiData.height),
+                            weight: parseFloat(bmiData.weight)
+                        })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        setResult(data);
+                    } else {
+                        setError(data.error || 'Something went wrong');
+                    }
+                } catch (err) {
+                    setError('Failed to calculate BMI');
+                }
+                setLoading(false);
+            };
+
+            const calculateBMR = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError(null);
+                try {
+                    const response = await fetch('/bmr', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            height: parseFloat(bmrData.height),
+                            weight: parseFloat(bmrData.weight),
+                            age: parseFloat(bmrData.age),
+                            gender: bmrData.gender
+                        })
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        setResult(data);
+                    } else {
+                        setError(data.error || 'Something went wrong');
+                    }
+                } catch (err) {
+                    setError('Failed to calculate BMR');
+                }
+                setLoading(false);
+            };
+
+            return (
+                <div className="min-h-screen p-6">
+                    <div className="max-w-2xl mx-auto">
+                        <h1 className="text-3xl font-bold text-center text-blue-600 mb-8">
+                            Health Calculator
+                        </h1>
+
+                        {/* Tabs */}
+                        <div className="flex mb-6">
+                            <button
+                                className={`flex-1 py-2 px-4 ${activeTab === 'bmi' 
+                                    ? 'bg-blue-600 text-white' 
+                                    : 'bg-gray-200 text-gray-700'} 
+                                    font-medium rounded-l-lg focus:outline-none`}
+                                onClick={() => {
+                                    setActiveTab('bmi');
+                                    setResult(null);
+                                    setError(null);
+                                }}
+                            >
+                                BMI Calculator
+                            </button>
+                            <button
+                                className={`flex-1 py-2 px-4 ${activeTab === 'bmr' 
+                                    ? 'bg-blue-600 text-white' 
+                                    : 'bg-gray-200 text-gray-700'} 
+                                    font-medium rounded-r-lg focus:outline-none`}
+                                onClick={() => {
+                                    setActiveTab('bmr');
+                                    setResult(null);
+                                    setError(null);
+                                }}
+                            >
+                                BMR Calculator
+                            </button>
+                        </div>
+
+                        {/* BMI Form */}
+                        {activeTab === 'bmi' && (
+                            <form onSubmit={calculateBMI} className="bg-white p-6 rounded-lg shadow-md">
+                                <div className="mb-4">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                                        Height (meters)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        className="w-full p-2 border rounded"
+                                        value={bmiData.height}
+                                        onChange={(e) => setBmiData({...bmiData, height: e.target.value})}
+                                        placeholder="e.g., 1.75"
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                                        Weight (kg)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        required
+                                        className="w-full p-2 border rounded"
+                                        value={bmiData.weight}
+                                        onChange={(e) => setBmiData({...bmiData, weight: e.target.value})}
+                                        placeholder="e.g., 70"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none disabled:opacity-50"
+                                >
+                                    {loading ? 'Calculating...' : 'Calculate BMI'}
+                                </button>
+                            </form>
+                        )}
+
+                        {/* BMR Form */}
+                        {activeTab === 'bmr' && (
+                            <form onSubmit={calculateBMR} className="bg-white p-6 rounded-lg shadow-md">
+                                <div className="mb-4">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                                        Height (cm)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        required
+                                        className="w-full p-2 border rounded"
+                                        value={bmrData.height}
+                                        onChange={(e) => setBmrData({...bmrData, height: e.target.value})}
+                                        placeholder="e.g., 175"
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                                        Weight (kg)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        required
+                                        className="w-full p-2 border rounded"
+                                        value={bmrData.weight}
+                                        onChange={(e) => setBmrData({...bmrData, weight: e.target.value})}
+                                        placeholder="e.g., 70"
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                                        Age (years)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        required
+                                        className="w-full p-2 border rounded"
+                                        value={bmrData.age}
+                                        onChange={(e) => setBmrData({...bmrData, age: e.target.value})}
+                                        placeholder="e.g., 25"
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                                        Gender
+                                    </label>
+                                    <select
+                                        className="w-full p-2 border rounded"
+                                        value={bmrData.gender}
+                                        onChange={(e) => setBmrData({...bmrData, gender: e.target.value})}
+                                    >
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                    </select>
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none disabled:opacity-50"
+                                >
+                                    {loading ? 'Calculating...' : 'Calculate BMR'}
+                                </button>
+                            </form>
+                        )}
+
+                        {/* Results */}
+                        {result && (
+                            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <h3 className="text-lg font-semibold text-green-800 mb-2">Result:</h3>
+                                <p className="text-green-700">
+                                    {result.operation === 'bmi' ? 'BMI' : 'BMR'}: {result.result}
+                                    {result.operation === 'bmr' ? ' calories/day' : ''}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Error Message */}
+                        {error && (
+                            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                <p className="text-red-600">{error}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<HealthCalculator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
